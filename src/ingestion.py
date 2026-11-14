@@ -1,8 +1,14 @@
+import os
+from dotenv import load_dotenv
 from pathlib import Path
 
 import pymupdf
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+load_dotenv()
+
+DOCUMENTS_DIRECTORY = Path(os.getenv("DOCUMENTS_DIRECTORY", "documents"))
 
 
 def load_pdf(pdf_path: str | Path) -> list[Document]:
@@ -30,7 +36,7 @@ def load_pdf(pdf_path: str | Path) -> list[Document]:
     return documents
 
 
-def load_pdfs(directory: str | Path = "documents") -> list[Document]:
+def load_pdfs(directory: str | Path = DOCUMENTS_DIRECTORY) -> list[Document]:
     """Load all PDFs recursively from the documents directory."""
 
     directory = Path(directory)

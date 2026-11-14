@@ -1,5 +1,7 @@
 from datetime import datetime
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 from rich.console import Console
 from rich.markdown import Markdown
@@ -7,15 +9,22 @@ from rich.markdown import Markdown
 from retrieval import retrieve_chunks
 from generation import generate_answer
 
-MAX_CANDIDATES = 20
-DISTANCE_THRESHOLD = 1.5
+load_dotenv()
+
+SAVE_ANSWERS = os.getenv("SAVE_ANSWERS", "true").lower() == "true"
+
+ANSWER_DIRECTORY = Path(os.getenv("ANSWER_DIRECTORY", "answers"))
+
+MAX_CANDIDATES = int(os.getenv("MAX_CANDIDATES", "20"))
+
+DISTANCE_THRESHOLD = float(os.getenv("DISTANCE_THRESHOLD", "1.5"))
 
 
 def save_answer(question: str, answer: str) -> Path:
     """Save a question and its answer to a Markdown file."""
 
-    output_directory = Path("answers")
-    output_directory.mkdir(exist_ok=True)
+    output_directory = ANSWER_DIRECTORY
+    output_directory.mkdir(parents=True, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     file_path = output_directory / f"answer_{timestamp}.md"
@@ -67,8 +76,9 @@ def main():
         else:
             console = Console()
             console.print(Markdown(answer))
-            file_path = save_answer(question, answer)
-            print(f"\nAnswer saved to: {file_path}")
+            if SAVE_ANSWERS:
+                file_path = save_answer(question, answer)
+                print(f"\nAnswer saved to: {file_path}")
 
         print("\n" + "-" * 50 + "\n")
 
