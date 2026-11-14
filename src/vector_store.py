@@ -1,11 +1,17 @@
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 import chromadb
 from chromadb.utils import embedding_functions
 from langchain_core.documents import Document
 
 
-CHROMA_PATH = Path("chromadb")
+load_dotenv()
+
+CHROMA_PATH = Path(
+    os.getenv("VECTOR_DB_DIRECTORY", "chroma_db")
+)
 COLLECTION_NAME = "exam_materials"
 
 
