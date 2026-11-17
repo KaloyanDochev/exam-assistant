@@ -10,6 +10,7 @@ A lightweight, AI-powered command-line (CLI) study assistant that helps students
 - **Source references:** Includes the original PDF filename and page number to help verify information.
 - **Persistent storage:** Stores document embeddings locally in ChromaDB, allowing them to be reused.
 - **Answer saving:** Optionally saves generated answers as Markdown files.
+- **Conversation memory:** for contextual follow-up questions
 - **Configurable settings:** Allows users to customize directories and retrieval parameters through environment variables.
 
 ## How It Works
@@ -36,7 +37,7 @@ ExamAssistant follows a Retrieval-Augmented Generation (RAG) workflow:
 ```text
 ExamAssistant/
 ├── documents/             # Default directory for PDF study materials
-├── chroma_db/             # Default directory for the vector database
+├── chromadb/             # Default directory for the vector database
 ├── answers/               # Default directory for saved answers
 ├── src/
 │   ├── ingestion.py       # PDF loading and text chunking
@@ -67,6 +68,8 @@ Create a `.env` file in the project root using `.env.example` as a template. App
 | `VECTOR_DB_DIRECTORY` | Persistent ChromaDB directory | `chromadb` |
 | `MAX_CANDIDATES` | Maximum number of chunks retrieved | `20` |
 | `DISTANCE_THRESHOLD` | Maximum retrieval distance for accepted chunks | `1.5` |
+| `ENABLE_CONVERSATION_MEMORY` | Enables or disables conversation memory | `true` |
+| `MAX_MEMORY_EXCHANGES` | Maximum number of previous exchanges retained | `5` |
 
 ## Running the Application
 

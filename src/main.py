@@ -1,3 +1,4 @@
+from collections import deque
 from datetime import datetime
 from pathlib import Path
 import os
@@ -18,6 +19,11 @@ ANSWER_DIRECTORY = Path(os.getenv("ANSWER_DIRECTORY", "answers"))
 MAX_CANDIDATES = int(os.getenv("MAX_CANDIDATES", "20"))
 
 DISTANCE_THRESHOLD = float(os.getenv("DISTANCE_THRESHOLD", "1.5"))
+
+ENABLE_CONVERSATION_MEMORY = (os.getenv("ENABLE_CONVERSATION_MEMORY",
+                                        "true").lower() == "true")
+
+MAX_MEMORY_EXCHANGES = int(os.getenv("MAX_MEMORY_EXCHANGES", "5"))
 
 
 def save_answer(question: str, answer: str) -> Path:
@@ -50,6 +56,9 @@ def main():
     print("================================")
     print("Enter 'exit' to quit.\n")
 
+    conversation_memory = (deque(
+        maxlen=MAX_MEMORY_EXCHANGES) if ENABLE_CONVERSATION_MEMORY else None)
+
     while True:
 
         question = input("Question: ").strip()
@@ -61,11 +70,21 @@ def main():
         if not question:
             continue
 
-        chunks = retrieve_chunks(question,
-                                 max_candidates=MAX_CANDIDATES,
-                                 distance_threshold=DISTANCE_THRESHOLD)
+        retrieved_chunks = retrieve_chunks(
+            question,
+            max_candidates=MAX_CANDIDATES,
+            distance_threshold=DISTANCE_THRESHOLD,
+            conversation_memory=conversation_memory)
 
-        answer = generate_answer(question, chunks)
+        answer = generate_answer(question,
+                                 retrieved_chunks,
+                                 conversation_memory=conversation_memory)
+
+        if conversation_memory is not None and answer is not None:
+            conversation_memory.append({
+                "question": question,
+                "answer": answer
+            })
 
         print("\nAnswer:\n")
 

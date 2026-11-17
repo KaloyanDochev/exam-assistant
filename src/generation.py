@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.documents import Document
+from langchain_core.messages import (SystemMessage, HumanMessage, AIMessage)
 
 load_dotenv()
 
@@ -11,7 +12,9 @@ REASONING_EFFORT = os.getenv("REASONING_EFFORT", "none")
 llm = ChatOpenAI(model=MODEL_NAME, reasoning_effort=REASONING_EFFORT)
 
 
-def generate_answer(question: str, chunks: list[Document]) -> str|None:
+def generate_answer(question: str,
+                    chunks: list[Document],
+                    conversation_memory=None) -> str | None:
     """Generate an answer using the retrieved document chunks."""
 
     if not chunks:
@@ -21,7 +24,7 @@ def generate_answer(question: str, chunks: list[Document]) -> str|None:
                           f"Page: {chunk.metadata['page']}\n"
                           f"{chunk.page_content}" for chunk in chunks)
 
-    messages = [("system", """You are an exam study assistant.
+    SYSTEM_PROMPT = r"""You are an exam study assistant.
 
     Answer the user's question clearly and accurately.
 
@@ -50,14 +53,23 @@ def generate_answer(question: str, chunks: list[Document]) -> str|None:
     - Avoid unnecessary headings and excessively long paragraphs.
     - Start with a direct answer rather than unnecessary introductions.
 """
-                 ),
-                ("human", f"""Context:
+    HUMAN_PROMPT = f"""
+Retrieved context:
+{context}
 
-            {context}
+Current question:
+{question}
+"""
+    
+    messages = [SystemMessage(content=SYSTEM_PROMPT)]
 
-            Question:
+    if conversation_memory:
+        for exchange in conversation_memory:
+            messages.append(HumanMessage(content=exchange["question"]))
 
-            {question}""")]
+            messages.append(AIMessage(content=exchange["answer"]))
+
+    messages.append(HumanMessage(content=HUMAN_PROMPT))
 
     response = llm.invoke(messages)
 

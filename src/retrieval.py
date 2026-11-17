@@ -8,7 +8,8 @@ from vector_store import CHROMA_PATH, COLLECTION_NAME
 def retrieve_chunks(query: str,
                     max_candidates: int = 20,
                     distance_threshold: float | None = 1.5,
-                    persist_directory=CHROMA_PATH) -> list[Document]:
+                    persist_directory=CHROMA_PATH,
+                    conversation_memory=None) -> list[Document]:
     """Retrieve chunks whose distance is below the specified threshold."""
 
     client = chromadb.PersistentClient(path=str(persist_directory))
@@ -18,7 +19,21 @@ def retrieve_chunks(query: str,
     collection = client.get_collection(name=COLLECTION_NAME,
                                        embedding_function=embedding_function)
 
-    results = collection.query(query_texts=[query],
+    retrieval_query = query
+
+    if conversation_memory:
+        recent_exchanges = list(conversation_memory)[-2:]
+
+        previous_questions = [
+            exchange["question"]
+            for exchange in recent_exchanges
+        ]
+
+        retrieval_query = "\n".join(
+            previous_questions + [query]
+        )
+
+    results = collection.query(query_texts=[retrieval_query],
                                n_results=min(max_candidates,
                                              collection.count()),
                                include=["documents", "metadatas", "distances"])
