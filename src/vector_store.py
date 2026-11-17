@@ -10,7 +10,7 @@ from langchain_core.documents import Document
 load_dotenv()
 
 CHROMA_PATH = Path(
-    os.getenv("VECTOR_DB_DIRECTORY", "chroma_db")
+    os.getenv("VECTOR_DB_DIRECTORY", "chromadb")
 )
 COLLECTION_NAME = "exam_materials"
 

@@ -37,7 +37,7 @@ ExamAssistant follows a Retrieval-Augmented Generation (RAG) workflow:
 ```text
 ExamAssistant/
 ├── documents/             # Default directory for PDF study materials
-├── chromadb/             # Default directory for the vector database
+├── chromadb/              # Default directory for the vector database
 ├── answers/               # Default directory for saved answers
 ├── src/
 │   ├── ingestion.py       # PDF loading and text chunking
@@ -89,7 +89,7 @@ You can now run main.py in order to enter questions in the terminal and receive 
 ## Notes
 
 - The first run may take longer because the embedding model needs to be downloaded.
-- PDF files must contain extractable text. Scanned documents may require OCR before processing.
+- PDF files must contain extractable text.
 - The vector database is stored locally and persists between runs.
 - When adding, removing, or replacing study materials, the vector database may need to be rebuilt to reflect the changes.
 - Answers depend on the quality of the source documents and retrieval results. Always verify important information against the original materials.
